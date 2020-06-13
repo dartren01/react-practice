@@ -1,0 +1,79 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+
+  <title>Document</title>
+</head>
+
+<body>
+  <div id="app"></div>
+
+  <script type="text/babel">
+    class App extends React.Component {
+      state = {
+        name: "Bob",
+        age: 20,
+      };
+
+      // use arrow functions to access this within the state, 
+      // otherwise this is undef in functions
+
+      handleClick = (e) => {
+        // e.target gets target element (like the button)
+        // do not change state directly from function
+        // change state through function
+        this.setState({
+          name: "BIG SAD"
+        });
+        console.log(e.target);
+      }
+
+      handleMouseOver = (e) => {
+        console.log(e.target, e.pageX);
+      }
+
+      handleCopy = (e) => {
+        console.log("copied");
+      }
+
+      handleChange = (e) => {
+        this.setState({
+          name: e.target.value
+        });
+      }
+
+      handleSubmit = (e) => {
+        e.preventDefault();
+        console.log('form submitted', this.state.name);
+      }
+
+      render() {
+        return (
+          <div className="app-content">
+            <h1>Hello World!</h1>
+            <p>
+              My friend: {this.state.name} and he is: {this.state.age}
+            </p>
+            <button onClick={this.handleClick}>click me</button>
+            <button onMouseOver={this.handleMouseOver}>hover me</button>
+            <p onCopy={this.handleCopy}>copy me</p>
+            <br />
+            <form onSubmit={this.handleSubmit}>
+              <input type="text" onChange={this.handleChange} />
+              <button>Submit</button>
+            </form>
+          </div>
+        );
+      }
+    }
+
+    ReactDOM.render(<App />, document.getElementById("app"));
+  </script>
+</body>
+
+</html>
