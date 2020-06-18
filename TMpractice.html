@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Popular Repos</title>
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script src='https://unpkg.com/babel-standalone@6/babel.min.js'></script>
+</head>
+
+<body>
+    <div id='app'></div>
+    <script>
+        window.API = {
+            fetchPopularRepos(language) {
+                // "language" can be "javascript", "ruby", "python", or "all"
+                const encodedURI = encodeURI(`https://api.github.com/search/repositories?q=stars:>1+language:${language}&sort=stars&order=desc&type=Repositories`)
+
+                return fetch(encodedURI)
+                    .then((data) => data.json())
+                    .then((repos) => repos.items)
+                    .catch((error) => {
+                        console.warn(error)
+                        return null
+                    });
+            }
+        }
+    </script>
+
+    <script type='text/babel'>
+        class Loading extends React.Component {
+            constructor(props) {
+                super(props);
+
+                this.state = {
+                    text: 'Loading'
+                };
+            }
+            componentDidMount() {
+                const stopper = this.state.text + '...';
+
+                this.interval = window.setInterval(() => {
+                    this.state.text === stopper
+                        ? this.setState(() => ({ text: 'Loading' }))
+                        : this.setState((prevState) => ({ text: prevState.text + '.' }))
+                }, 300)
+            }
+            componentWillUnmount() {
+                window.clearInterval(this.interval);
+            }
+            render() {
+                return (
+                    <p>
+                        {this.state.text}
+                    </p>
+                )
+            }
+        }
+
+        function RepoList(props) {
+            if (props.loading === true) {
+                console.log("LOADING")
+                return <Loading />
+            }
+            return (
+                <div>
+                    {props.list.map((repo) => (
+                        <ul key={repo.name}>
+                            <li>
+                                <ul>
+                                    <li>
+                                        <span>{repo.name}</span>
+                                    </li>
+                                    <li>
+                                        <span>@{repo.owner.login}</span>
+                                    </li>
+                                    <li>
+                                        <span>{repo.stargazers_count} stars</span>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    ))}
+                </div>
+            )
+        }
+
+        class App extends React.Component {
+            constructor(props) {
+                super(props);
+
+                this.state = {
+                    repos: [],
+                    loading: true
+                }
+            }
+
+            componentDidMount() {
+                console.log('--componentDidMount--')
+
+                API.fetchPopularRepos('all').then((repos) => {
+                    this.setState({
+                        repos,
+                        loading: false,
+                    })
+                })
+            }
+
+            handleFetch = (name) => {
+                API.fetchPopularRepos(name).then((repos) => {
+                    this.setState({
+                        repos,
+                        loading: false,
+                    })
+                })
+            }
+
+            render() {
+                console.log("--render--");
+                return (
+                    <div>
+                        <div>
+                            <ul>
+                                <li onClick={() => {
+                                    this.setState({
+                                        loading: true,
+                                    })
+                                    this.handleFetch("all")
+                                }}>
+                                    All
+                                </li>
+                                <li onClick={() => {
+                                    this.setState({
+                                        loading: true,
+                                    })
+                                    this.handleFetch("javascript")
+                                }}>
+                                    javascript
+                                </li>
+                                <li onClick={() => {
+                                    this.setState({
+                                        loading: true,
+                                    })
+                                    this.handleFetch("ruby")
+                                }}>
+                                    ruby
+                                </li>
+                                <li onClick={() => {
+                                    this.setState({
+                                        loading: true,
+                                    })
+                                    this.handleFetch("python")
+                                }}>
+                                    python
+                                </li>
+
+                            </ul>
+                        </div>
+                        <div>
+                            <RepoList
+                                list={this.state.repos}
+                                loading={this.state.loading} />
+                        </div>
+                    </div>
+
+                )
+            }
+        }
+
+        ReactDOM.render(
+            <App />,
+            document.getElementById('app')
+        )
+    </script>
+</body>
+
+</html>
