@@ -63,7 +63,7 @@
                 return <Loading />
             }
             return (
-                <div>
+                <div style={{ display: 'flex', flexWrap: 'wrap' }}>
                     {props.list.map((repo) => (
                         <ul key={repo.name}>
                             <li>
